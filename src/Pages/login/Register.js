@@ -1,26 +1,44 @@
-import React, { useContext } from 'react'
+import React, { useContext, useState } from 'react'
 import Button from 'react-bootstrap/Button'
 import Form from 'react-bootstrap/Form'
 import { AuthContext } from '../../context/Authprovider/Authprovider'
 
 const Register = () => {
-  const { createUser } = useContext(AuthContext)
+  const { createUser, updateProfileUser } = useContext(AuthContext)
+  const [accepted, setAccepted] = useState(false)
   const handleSubmit = (event) => {
     event.preventDefault()
-    const from = event.target
-    const name = from.name.value
-    const email = from.email.value
-    const url = from.photoUrl.value
-    const password = from.password.value
+    const form = event.target
+    const name = form.name.value
+    const email = form.email.value
+    const url = form.photoUrl.value
+    const password = form.password.value
 
     createUser(email, password)
       .then((result) => {
         const user = result.user
         console.log(user)
+        setUserProfile(name, url)
+        form.reset()
       })
       .catch((error) => {
         console.log('error:', error)
       })
+  }
+  const setUserProfile = (name, url) => {
+    let profile = {
+      displayName: name,
+      photoURL: url,
+    }
+    updateProfileUser(profile)
+      .then(() => {})
+      .catch((error) => {
+        console.log('error:', error)
+      })
+  }
+
+  const handalechecked = (event) => {
+    setAccepted(event.target.checked)
   }
   return (
     <div>
@@ -56,8 +74,14 @@ const Register = () => {
             required
           />
         </Form.Group>
-
-        <Button variant='primary' type='submit'>
+        <Form.Group className='mb-3' controlId='formBasicCheckbox'>
+          <Form.Check
+            onClick={handalechecked}
+            type='checkbox'
+            label='Check me out'
+          />
+        </Form.Group>
+        <Button variant='primary' type='submit' disabled={!accepted}>
           Signup
         </Button>
       </Form>
